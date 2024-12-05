@@ -21,19 +21,19 @@ namespace HydrostaticAnalyzer
             InitializeComponent();
         }
 
-        // "Veriyi Yükle" butonu tıklama olayı
+        
         private void btnLoadData_Click(object sender, EventArgs e)
         {
-            // OpenFileDialog nesnesi oluştur
+            
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
                 openFileDialog.Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*";
                 openFileDialog.Title = "Txt Dosyasını Seç";
 
-                // Kullanıcı dosya seçerse işlemi başlat
+                
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    string filePath = openFileDialog.FileName; // Seçilen dosya yolu
+                    string filePath = openFileDialog.FileName;
 
                     try
                     {
@@ -78,7 +78,7 @@ namespace HydrostaticAnalyzer
                     }
 
 
-                    if (values.Count == 17) // Her satır 17 değer içermeli
+                    if (values.Count == 17)
                         data.Add(values);
                 }
             }
@@ -104,25 +104,32 @@ namespace HydrostaticAnalyzer
             return matrix;
         }
 
+        private readonly string[] ColumnHeaders =
+        {
+            "Trim", "Draft", "Displt", "LCB", "TCB", "VCB",
+           "WPA", "LCF", "KML", "KMT", "BML", "BMT",
+             "IL", "IT", "TPC", "MTC", "WSA"
+        };
+
         // Veriyi DataGridView'e yükleme
-        public void LoadDataToGridView(double[,] matrix)
+        private void LoadDataToGridView(double[,] data)
         {
             dataGridView1.Rows.Clear();
             dataGridView1.Columns.Clear();
 
-            // Sütunlar ekleniyor
-            for (int j = 0; j < matrix.GetLength(1); j++)
+            // Sütun ve başlıklar
+            for (int i = 0; i < ColumnHeaders.Length; i++)
             {
-                dataGridView1.Columns.Add($"Column{j + 1}", $"Column {j + 1}");
+                dataGridView1.Columns.Add($"Column{i}", ColumnHeaders[i]);
             }
 
-            // Satırlar ekleniyor
-            for (int i = 0; i < matrix.GetLength(0); i++)
+            // Veri ekleme
+            for (int i = 0; i < data.GetLength(0); i++)
             {
                 var row = new List<string>();
-                for (int j = 0; j < matrix.GetLength(1); j++)
+                for (int j = 0; j < data.GetLength(1); j++)
                 {
-                    row.Add(matrix[i, j].ToString());
+                    row.Add(data[i, j].ToString());
                 }
                 dataGridView1.Rows.Add(row.ToArray());
             }
