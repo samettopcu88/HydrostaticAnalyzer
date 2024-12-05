@@ -19,6 +19,8 @@ namespace HydrostaticAnalyzer
         public Form1()
         {
             InitializeComponent();
+
+            cmbTrimValues.SelectedIndexChanged += cmbTrimValues_SelectedIndexChanged;
         }
 
         
@@ -79,6 +81,12 @@ namespace HydrostaticAnalyzer
             }
 
             HydrostaticsTrimDegerleri = trimValues.OrderBy(t => t).ToArray();
+
+            // ComboBox'a trim değerleri eklendi
+            cmbTrimValues.Items.Clear();
+            cmbTrimValues.Items.AddRange(HydrostaticsTrimDegerleri.Select(t => t.ToString()).ToArray());
+            cmbTrimValues.SelectedIndex = 0;
+
         }
 
 
@@ -181,5 +189,52 @@ namespace HydrostaticAnalyzer
                                 MessageBoxIcon.Warning);
             }
         }
+
+        private void cmbTrimValues_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cmbTrimValues.SelectedItem == null || HydrostaticsAll == null) return;
+
+            // Seçilen trim değeri
+            if (double.TryParse(cmbTrimValues.SelectedItem.ToString(), out double selectedTrim))
+            {
+                // Filtrelenmiş veri
+                var filteredRows = new List<double[]>();
+                for (int i = 0; i < HydrostaticsAll.GetLength(0); i++)
+                {
+                    if (HydrostaticsAll[i, 0] == selectedTrim) // Trim sütunu: 0. indeks
+                    {
+                        double[] row = new double[HydrostaticsAll.GetLength(1)];
+                        for (int j = 0; j < HydrostaticsAll.GetLength(1); j++)
+                        {
+                            row[j] = HydrostaticsAll[i, j];
+                        }
+                        filteredRows.Add(row);
+                    }
+                }
+
+                // Filtrelenmiş veriyi DataGridView'e yükle
+                LoadDataToGridViewFiltered(filteredRows.ToArray());
+            }
+        }
+
+        private void LoadDataToGridViewFiltered(double[][] filteredData)
+        {
+            dataGridViewFiltered.Rows.Clear();
+            dataGridViewFiltered.Columns.Clear();
+
+            // Sütun ve başlıklar
+            for (int i = 0; i < ColumnHeaders.Length; i++)
+            {
+                dataGridViewFiltered.Columns.Add($"Column{i}", ColumnHeaders[i]);
+            }
+
+            // Veri ekleme
+            foreach (var row in filteredData)
+            {
+                dataGridViewFiltered.Rows.Add(row.Select(v => v.ToString()).ToArray());
+            }
+        }
+
+
     }
 }
