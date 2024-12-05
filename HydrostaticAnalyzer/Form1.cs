@@ -27,7 +27,7 @@ namespace HydrostaticAnalyzer
             
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
-                openFileDialog.Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*";
+                openFileDialog.Filter = "Text Files (*.txt)|*.txt";
                 openFileDialog.Title = "Txt Dosyasını Seç";
 
                 
@@ -37,24 +37,50 @@ namespace HydrostaticAnalyzer
 
                     try
                     {
-                        // Verileri txt dosyasından oku
+                        // Trim değerlerini bul ve doldur
+                        ExtractTrimValues(filePath);
+
+                        // Veriyi yükle
                         var allData = ReadDataFromTxt(filePath);
-
-                        // Veriyi matrise dönüştür
                         HydrostaticsAll = ConvertToMatrix(allData);
-
-                        // DataGridView'e veriyi yükle
                         LoadDataToGridView(HydrostaticsAll);
 
-                        MessageBox.Show("Veriler başarıyla yüklendi!", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show("Veriler başarıyla yüklendi ve Trim değerleri kaydedildi!",
+                                        "Bilgi",
+                                        MessageBoxButtons.OK,
+                                        MessageBoxIcon.Information);
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Bir hata oluştu: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show($"Bir hata oluştu: {ex.Message}",
+                                        "Hata",
+                                        MessageBoxButtons.OK,
+                                        MessageBoxIcon.Error);
                     }
                 }
             }
         }
+
+        private void ExtractTrimValues(string filePath)
+        {
+            var trimValues = new HashSet<double>(); // Benzersiz değerler için HashSet kullan
+            var lines = File.ReadAllLines(filePath); // Txt dosyasını satır satır oku
+
+            foreach (var line in lines)
+            {
+                if (string.IsNullOrWhiteSpace(line)) continue;
+
+                var parts = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+                if (parts.Length > 0 && double.TryParse(parts[0], out double trim))
+                {
+                    trimValues.Add(trim);
+                }
+            }
+
+            HydrostaticsTrimDegerleri = trimValues.OrderBy(t => t).ToArray();
+        }
+
 
         // Txt dosyasını okuma
         public List<List<double>> ReadDataFromTxt(string filePath)
@@ -132,6 +158,27 @@ namespace HydrostaticAnalyzer
                     row.Add(data[i, j].ToString());
                 }
                 dataGridView1.Rows.Add(row.ToArray());
+            }
+        }
+
+        public static double[] HydrostaticsTrimDegerleri { get; set; }
+
+        private void btnShowTrimValues_Click(object sender, EventArgs e)
+        {
+            if (HydrostaticsTrimDegerleri != null && HydrostaticsTrimDegerleri.Length > 0)
+            {
+                // Trim değerlerini MessageBox ile göster
+                MessageBox.Show($"Trim Değerleri: {string.Join(", ", HydrostaticsTrimDegerleri)}",
+                                "Trim Değerleri",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Information);
+            }
+            else
+            {
+                MessageBox.Show("Henüz Trim değerleri bulunamadı. Önce bir dosya yükleyin!",
+                                "Uyarı",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Warning);
             }
         }
     }
