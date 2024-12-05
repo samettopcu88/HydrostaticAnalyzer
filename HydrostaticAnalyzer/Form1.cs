@@ -63,8 +63,8 @@ namespace HydrostaticAnalyzer
 
         private void ExtractTrimValues(string filePath)
         {
-            var trimValues = new HashSet<double>(); // Benzersiz değerler için HashSet kullan
-            var lines = File.ReadAllLines(filePath); // Txt dosyasını satır satır oku
+            var trimValues = new HashSet<double>(); // Benzersiz değerler için HashSet
+            var lines = File.ReadAllLines(filePath); // Txt dosyasını okur
 
             foreach (var line in lines)
             {
