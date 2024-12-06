@@ -84,7 +84,7 @@ namespace HydrostaticAnalyzer
 
             // ComboBox'a trim değerleri eklendi
             cmbTrimValues.Items.Clear();
-            cmbTrimValues.Items.AddRange(HydrostaticsTrimDegerleri.Select(t => t.ToString()).ToArray());
+            cmbTrimValues.Items.AddRange(HydrostaticsTrimDegerleri.Select(t => t.ToString("F2")).ToArray());
             cmbTrimValues.SelectedIndex = 0;
 
         }
@@ -163,7 +163,7 @@ namespace HydrostaticAnalyzer
                 var row = new List<string>();
                 for (int j = 0; j < data.GetLength(1); j++)
                 {
-                    row.Add(data[i, j].ToString());
+                    row.Add(data[i, j].ToString("F2"));
                 }
                 dataGridView1.Rows.Add(row.ToArray());
             }
@@ -176,7 +176,7 @@ namespace HydrostaticAnalyzer
             if (HydrostaticsTrimDegerleri != null && HydrostaticsTrimDegerleri.Length > 0)
             {
                 // Trim değerlerini MessageBox ile göster
-                MessageBox.Show($"Trim Değerleri: {string.Join(", ", HydrostaticsTrimDegerleri)}",
+                MessageBox.Show($"Trim Değerleri: {string.Join(", ", HydrostaticsTrimDegerleri.Select(t => t.ToString("F2")))}",
                                 "Trim Değerleri",
                                 MessageBoxButtons.OK,
                                 MessageBoxIcon.Information);
@@ -231,7 +231,7 @@ namespace HydrostaticAnalyzer
             // Veri ekleme
             foreach (var row in filteredData)
             {
-                dataGridViewFiltered.Rows.Add(row.Select(v => v.ToString()).ToArray());
+                dataGridViewFiltered.Rows.Add(row.Select(v => v.ToString("F2")).ToArray());
             }
         }
 
