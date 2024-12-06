@@ -140,9 +140,9 @@ namespace HydrostaticAnalyzer
 
         private readonly string[] ColumnHeaders =
         {
-            "Trim", "Draft", "Displt", "LCB", "TCB", "VCB",
-           "WPA", "LCF", "KML", "KMT", "BML", "BMT",
-             "IL", "IT", "TPC", "MTC", "WSA"
+            "Trim (m)", "Draft (m)", "Displt (t)", "LCB (m)", "TCB (m)", "VCB (m)",
+            "WPA (m²)", "LCF (m)", "KML (m)", "KMT (m)", "BML (m)", "BMT (m)",
+             "IL (m⁴)", "IT (m⁴)", "TPC (t/cm)", "MTC (t-m/cm)", "WSA (m²)"
         };
 
         // Veriyi DataGridView'e yükleme
