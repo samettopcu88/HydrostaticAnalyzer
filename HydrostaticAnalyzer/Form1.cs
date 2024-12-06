@@ -235,6 +235,97 @@ namespace HydrostaticAnalyzer
             }
         }
 
+        private void btnAddData_Click(object sender, EventArgs e)
+        {
+            if (double.TryParse(txtTrimInput.Text, out double userTrim) &&
+        double.TryParse(txtDraftInput.Text, out double userDraft))
+            {
+                // Lineer interpolasyon ile diğer değerleri hesapla
+                var calculatedRow = CalculateRowUsingInterpolation(userTrim, userDraft);
 
+                if (calculatedRow != null)
+                {
+                    // Hesaplanan satırı dataGridView1'e ekle
+                    AddRowToDataGridView(dataGridView1, calculatedRow);
+                }
+                else
+                {
+                    MessageBox.Show("Girilen değerler uygun bir aralıkta değil.", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Lütfen Trim ve Draft değerlerini doğru formatta girin.", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+        private double[] CalculateRowUsingInterpolation(double trim, double draft)
+        {
+            // En yakın iki satırı bul
+            var lowerRow = FindClosestRow(trim, draft, lower: true);
+            var upperRow = FindClosestRow(trim, draft, lower: false);
+
+            if (lowerRow != null && upperRow != null)
+            {
+                var interpolatedRow = new double[ColumnHeaders.Length];
+                interpolatedRow[0] = trim;
+                interpolatedRow[1] = draft;
+
+                // Diğer sütunları interpolasyon ile hesapla
+                for (int i = 2; i < ColumnHeaders.Length; i++)
+                {
+                    interpolatedRow[i] = Interpolate(lowerRow[0], upperRow[0], lowerRow[1], upperRow[1], lowerRow[i], upperRow[i]);
+                }
+
+                return interpolatedRow;
+            }
+
+            return null;
+        }
+
+        private double[] FindClosestRow(double trim, double draft, bool lower)
+        {
+            double[] closestRow = null;
+            double closestDifference = double.MaxValue;
+
+            for (int i = 0; i < HydrostaticsAll.GetLength(0); i++)
+            {
+                double currentTrim = HydrostaticsAll[i, 0];
+                double currentDraft = HydrostaticsAll[i, 1];
+
+                if ((lower && currentTrim <= trim && currentDraft <= draft) ||
+                    (!lower && currentTrim >= trim && currentDraft >= draft))
+                {
+                    double diff = Math.Abs(currentTrim - trim) + Math.Abs(currentDraft - draft);
+                    if (diff < closestDifference)
+                    {
+                        closestDifference = diff;
+                        closestRow = new double[ColumnHeaders.Length];
+
+                        for (int j = 0; j < ColumnHeaders.Length; j++)
+                        {
+                            closestRow[j] = HydrostaticsAll[i, j];
+                        }
+                    }
+                }
+            }
+
+            return closestRow;
+        }
+
+        private double Interpolate(double x1, double x2, double y1, double y2, double z1, double z2)
+        {
+            if (x2 == x1) return z1; // Eğer aynıysa direk değer
+            return z1 + (z2 - z1) * ((y2 - y1) / (x2 - x1));
+        }
+
+        private void AddRowToDataGridView(DataGridView gridView, double[] row)
+        {
+            var rowData = row.Select(v => v.ToString("F2")).ToArray();
+            gridView.Rows.Add(rowData);
+
+            MessageBox.Show("Veri başarıyla eklendi!", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+        }
     }
 }
