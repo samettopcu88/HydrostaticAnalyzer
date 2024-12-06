@@ -175,7 +175,6 @@ namespace HydrostaticAnalyzer
         {
             if (HydrostaticsTrimDegerleri != null && HydrostaticsTrimDegerleri.Length > 0)
             {
-                // Trim değerlerini MessageBox ile göster
                 MessageBox.Show($"Trim Değerleri: {string.Join(", ", HydrostaticsTrimDegerleri.Select(t => t.ToString("F2")))}",
                                 "Trim Değerleri",
                                 MessageBoxButtons.OK,
@@ -201,7 +200,7 @@ namespace HydrostaticAnalyzer
                 var filteredRows = new List<double[]>();
                 for (int i = 0; i < HydrostaticsAll.GetLength(0); i++)
                 {
-                    if (HydrostaticsAll[i, 0] == selectedTrim) // Trim sütunu: 0. indeks
+                    if (HydrostaticsAll[i, 0] == selectedTrim)
                     {
                         double[] row = new double[HydrostaticsAll.GetLength(1)];
                         for (int j = 0; j < HydrostaticsAll.GetLength(1); j++)
@@ -321,11 +320,37 @@ namespace HydrostaticAnalyzer
 
         private void AddRowToDataGridView(DataGridView gridView, double[] row)
         {
-            var rowData = row.Select(v => v.ToString("F2")).ToArray();
-            gridView.Rows.Add(rowData);
+            // Mevcut verileri liste olarak çek
+            var allRows = new List<double[]>();
+            foreach (DataGridViewRow dgvRow in gridView.Rows)
+            {
+                if (!dgvRow.IsNewRow)
+                {
+                    var rowData = new double[ColumnHeaders.Length];
+                    for (int i = 0; i < ColumnHeaders.Length; i++)
+                    {
+                        rowData[i] = double.Parse(dgvRow.Cells[i].Value.ToString());
+                    }
+                    allRows.Add(rowData);
+                }
+            }
 
-            MessageBox.Show("Veri başarıyla eklendi!", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            // Yeni veriyi ekle
+            allRows.Add(row);
 
+            // Trim değerine göre sıralama
+            allRows = allRows.OrderBy(r => r[0]).ThenBy(r => r[1]).ToList(); // İlk sütun Trim, ikinci sütun Draft
+
+            // DataGridView'i temizle
+            gridView.Rows.Clear();
+
+            // Sıralanmış verileri tekrar yükle
+            foreach (var sortedRow in allRows)
+            {
+                gridView.Rows.Add(sortedRow.Select(v => v.ToString("F2")).ToArray());
+            }
+
+            MessageBox.Show("Veri başarıyla uygun sıraya eklendi!", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
     }
