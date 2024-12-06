@@ -327,5 +327,6 @@ namespace HydrostaticAnalyzer
             MessageBox.Show("Veri başarıyla eklendi!", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
         }
+
     }
 }
